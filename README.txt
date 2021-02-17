@@ -4,10 +4,10 @@ Programs should be compiled without any optimizations. (Makefile accounts for th
 
 To use:
 
-1. Run receiver before running the transmitter using the following command line input:
+1. Run the receiver before running the transmitter using the following command line input:
 	./receiver.exe transmitter.exe
 
-2. Run transmitter using the following command line input:
+2. Run the transmitter in a separate terminal using the following command line input:
 	./transmitter.exe <yourmessagehere>
 	
 where <yourmessagehere> is the message you wish to transmit (no spaces). By default, the maximum character length is 256. This can be edited by changing the definition of "MAX_MSG_LENGTH" in receiver.c, but given the low bit transmission rate, I would not recommend sending a message this long.

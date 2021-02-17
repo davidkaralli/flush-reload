@@ -8,7 +8,7 @@ To use:
 2. Run transmitter using the following command line input:
 	./transmitter.exe <yourmessagehere>
 	
-where <yourmessagehere> is the message you wish to transmit. By default, the maximum character length is 256. This can be edited by changing the definition of "MAX_MESSAGE_LENGTH" in receiver.c, but given the low bit transmission rate, I would not recommend sending a message this long.
+where <yourmessagehere> is the message you wish to transmit (no spaces). By default, the maximum character length is 256. This can be edited by changing the definition of "MAX_MSG_LENGTH" in receiver.c, but given the low bit transmission rate, I would not recommend sending a message this long.
 
 transmitter.exe will send 0xff as a start signal and will print "Start signal transmitted."  after doing so. receiver.exe should print "Start signal received." at the same time. If this does not happen, you can kill transmitter.exe and run it again. (Killing receiver.exe is not necessary if it has not indicated that it has received the start signal.)
 

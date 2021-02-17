@@ -23,156 +23,44 @@ int main(int argc, char** argv) {
   // Initial synchronization
   sync();
 
-  transmitChar(0xff); // signal that transmission will start
+  // Signal start of transmission
+  transmitChar(0xff);
   printf("Start signal transmitted.\n");
   sync();
   while ((currChar = transmitString[i]) != 0) {
     transmitChar(currChar);
     i++;
   }
-  transmitChar(0x00);
+  // Signal end of transmission
   transmitChar(0x00);
   return 0;
 }
 
+// Code for transmitting a single character
 void transmitChar(char c) {
   bool bit;
   struct timeval  newTime, oldTime;
-  // gettimeofday(&oldTime, NULL);
   for (int j = 7; j >= 0; j--) {
     sync();
     gettimeofday(&oldTime, NULL);
     bit = (c & (1 << j)) >> j;
     if (bit) {
       do {
+      // Seemingly useless code designed to ensure continuous cache hits
 	int m = 5;
 	m++;
-	// dummy code to ensure sufficient separation between instructions
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m + 8;
-	m = m - 7;
-	m = m - 13;
-	m = m - 7;
-	m = m - 13;
 	gettimeofday(&newTime, NULL);
       } while ((newTime.tv_sec - oldTime.tv_sec) * 1000000
 	       + (newTime.tv_usec - oldTime.tv_usec) < NUM_MICRO);
-      //printf("Transmitted 1\n");
     }
     else {
       usleep(NUM_MICRO);
-      // do {
-      //clock_gettime(CLOCK_REALTIME, &newTime);
-      //} while (newTime.tv_nsec - oldTime.tv_nsec < 100000);
-      //  printf("Transmitted 0\n");
     }
-    //sync();
   }
 }
 
-int probe(char* adrs) {
+// Currently unused, but here in case
+/*int probe(char* adrs) {
   volatile unsigned long time;
   asm __volatile__ (
      " mfence                \n"
@@ -189,8 +77,9 @@ int probe(char* adrs) {
      : "c" (adrs)
      : "%esi", "%edx");
   return time;
-}
+}*/
 
+// Synchronize receiver and transmitter using global clock
 void sync() {
   struct timeval syncer;
   do {

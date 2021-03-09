@@ -16,13 +16,14 @@
 int probe(char* address);
 void sync();
 void printBytes(char transmittedString[]);
+int initialize(char *mappedAddr);
 
 int main(int argc, char **argv) {
   // v[1] points to the file name
   // Mapping transmission program executable to memory/error handling
   if (argc < 2) {
     perror("ERROR: File name not given.\n");
-    exit(1);
+    exit(-1);
   }
   int fileDescriptor = open(argv[1], O_RDONLY);
   if (fileDescriptor < 0) {
@@ -40,7 +41,8 @@ int main(int argc, char **argv) {
   int transmit1;
   // Remove noise
   probe(PROBE_ADDR);
-  int threshold = 171;
+  int threshold = initialize(mappedAddr);
+  // sscanf(argv[2], "%d", &threshold);
   char transmittedChar = 0;
   char transmittedString[MAX_MSG_LENGTH] = {'a'};
   int charNum = 0;
@@ -48,7 +50,9 @@ int main(int argc, char **argv) {
   int numMisses;
   int i = 0;
   int startSignal = 0;
-  
+
+  // Choose a threshold value
+  //int threshold = initialize();
   // Get start of transmission signal
   gettimeofday(&oldTime, NULL);
   while (!startSignal) {
@@ -66,7 +70,8 @@ int main(int argc, char **argv) {
     sync();
     gettimeofday(&oldTime, NULL);
     transmittedChar = transmittedChar << 1;
-    if (numHits > numMisses) // 1 transmitted, if true; otherwise 0 transmitted
+    // printf("numHits vs numMisses: %d, %d\n", numHits, numMisses);
+    if (numHits + 40 > numMisses) // 1 transmitted, if true; otherwise 0 transmitted
       transmittedChar = transmittedChar | 0x1;
     if (transmittedChar == 0xffffffff) startSignal = 1;
   }
@@ -92,7 +97,7 @@ int main(int argc, char **argv) {
       sync();
       gettimeofday(&oldTime, NULL);
       transmittedChar = transmittedChar << 1;
-      if (numHits > numMisses) // 1 transmitted, if true; otherwise 0 transmitted
+      if (numHits + 40 > numMisses) // 1 transmitted, if true; otherwise 0 transmitted
 	transmittedChar = transmittedChar | 0x1;
       i++;
     }
@@ -121,6 +126,7 @@ int probe(char* adrs) {
      : "c" (adrs)
      : "%esi", "%edx");
   usleep(25);
+  //printf("Time is %d\n", time);
   return time;
 }
 
@@ -141,4 +147,16 @@ void printBytes(char transmittedString []) {
     i++;
   }
   printf("0x%d\n", (unsigned char)transmittedString[i]);
+}
+
+// Return threshold value
+int initialize(char *mappedAddr) {
+  int thresholdSum = 0;
+  // Find the mean time for a miss
+  for (int i = 0; i < 60; i++) {
+    usleep(1000);
+    thresholdSum += probe(PROBE_ADDR);
+  }
+  // Threshold will be 1/3 of the mean miss time
+  return (thresholdSum/180);
 }
